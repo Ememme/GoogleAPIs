@@ -1,7 +1,9 @@
+<!DOCTYPE html>
 <!-- This is the corresponding "starter code" for 04_Hello Map in Udacity and Google's Maps
 API Course, Lesson 1 -->
 <html>
  <head>
+   <title>My neighboorhood</title>
  <!-- styles put here, but you can include a CSS file and reference it instead! -->
    <style type="text/css">
      html, body { height: 100%; margin: 0; padding: 0; }
@@ -10,18 +12,84 @@ API Course, Lesson 1 -->
  </head>
  <body>
    <!-- TODO 1: Create a place to put the map in the HTML-->
-   <div></div>
+   <div id="map"></div>
    <script>
      // TODO: Create a map variable
-
+    let map;
+    // Create a new blank array for all the listing markers.
+    let markers = [];
      // TODO: Complete the following function to initialize the map
      function initMap() {
-       // TODO: use a constructor to create a new map JS object. You can use the coordinates
-       // we used, 40.7413549, -73.99802439999996 or your own!
-     }
+       // Constructor creates a new map - only center and zoom are required.
+       map = new google.maps.Map(document.getElementById('map'), {
+         center: {lat: 52.256057, lng: 21.047455},
+         zoom: 15
+       });
+
+      let locations = [
+        {title: 'Domek', location: {lat: 52.2567871, lng: 21.0468154}},
+        {title: 'Google Campus', location: {lat: 52.256147, lng: 21.045321}},
+        {title: 'Dworzec Wileński', location: {lat: 52.255536, lng: 21.034937}},
+        {title: 'Subrosa', location: {lat: 52.250519, lng: 21.029269}},
+        {title: 'Bistro Pod Sowami', location: {lat: 52.251152, lng: 21.035509}},
+        {title: 'Boska Włoska', location: {lat: 52.256826, lng: 21.041784}},
+        {title: 'Biblioteka', location: {lat: 52.259565, lng: 21.053056}}
+      ]
+
+      let largeInfowindow = new google.maps.InfoWindow();
+      let bounds = new google.maps.LatLngBounds();
+      let image = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png';
+
+      // The following group uses the location array to create an array of markers on initialize.
+        for (let i = 0; i < locations.length; i++) {
+          // Get the position from the location array.
+          let position = locations[i].location;
+          let title = locations[i].title;
+          // Create a marker per location, and put into markers array.
+          let marker = new google.maps.Marker({
+            map: map,
+            position: position,
+            title: title,
+            animation: google.maps.Animation.DROP,
+            id: i,
+            icon: image
+          });
+          // Push the marker to our array of markers.
+          markers.push(marker);
+          // Create an onclick event to open an infowindow at each marker.
+          marker.addListener('click', function() {
+            populateInfoWindow(this, largeInfowindow);
+          });
+          bounds.extend(markers[i].position);
+        }
+        // Extend the boundaries of the map for each marker
+        map.fitBounds(bounds);
+
+    }
+
+    // This function populates the infowindow when the marker is clicked. We'll only allow
+      // one infowindow which will open at the marker that is clicked, and populate based
+      // on that markers position.
+      function populateInfoWindow(marker, infowindow) {
+        // Check to make sure the infowindow is not already opened on this marker.
+        if (infowindow.marker != marker) {
+          infowindow.marker = marker;
+          infowindow.setContent('<div>' + marker.title + '</div>');
+          infowindow.open(map, marker);
+          // Make sure the marker property is cleared if the infowindow is closed.
+          infowindow.addListener('closeclick',function(){
+            infowindow.setMarker = null;
+          });
+        }
+      }
+
+
+
+
    </script>
    <!--TODO: Load the JS API ASYNCHRONOUSLY below.-->
-   <script>
+   <script async defer
+       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBGs0x8vuA1_EdLLtIQpFfoweEk2k-jcak&v=3&callback=initMap">
    </script>
  </body>
 </html>
